@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password, check_password
-from users.models import Users, access_token
+from users.models import Users, token
 from datetime import datetime
 import json
 from rest_framework.decorators import api_view
@@ -57,3 +57,28 @@ def get_user(request):
         return Response(UserSerializer(instance=user).data, status=200)
     else:
         return Response({"error_message": "User Id not found!"}, status=400)
+
+
+@api_view(["POST"])
+def login(request):
+    try:
+        username = request.data["username"]
+        password = request.data["password"]
+    except KeyError:
+        return Response({"error_message": "Invalid Username or Password !"}, status=400)
+
+    user = Users.objects.filter(username=username).first()
+
+    if user is None:
+        return Response({"error_message": "Invalid Username or Password."}, status=400)
+
+    if user:
+        if not check_password(password, user.password):
+            return Response({"error_message": "Invalid Username or Password."}, status=400)
+        else:
+            access_token = token(user_id=user)
+            access_token.create_token()
+            access_token.save()
+            return Response({"access_token": access_token.access_token}, status=200)
+    else:
+        return Response({'message': "Username or password not provided"}, status=200)
