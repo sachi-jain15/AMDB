@@ -12,3 +12,14 @@ class Users(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
+class access_token(models.Model):
+    user_id = models.ForeignKey(Users,on_delete=models.CASCADE)
+    access_token = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+    last_request_on = models.DateTimeField(auto_now=True)
+    is_valid = models.BooleanField(default=True)
+
+    def create_token(self):
+        self.access_token = uuid.uuid4()
+
+
