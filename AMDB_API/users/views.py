@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password, check_password
-from users.models import Users
+from users.models import Users, access_token
 from datetime import datetime
 import json
 from rest_framework.decorators import api_view
@@ -28,8 +28,32 @@ def user_create(request):
     does_username = Users.objects.filter(username=username).first()
 
     if does_username is not None:
-        return Response({"error_message": "Please Choose another Username as User with this Username already exists!"}, status=400)
+        return Response({"error_message": "Please Choose another Username as User with this Username already exists!"},
+                        status=400)
 
-    new_user = Users.objects.create(name=name, password=make_password(password), short_bio=short_bio, username=username, email_id=email_id)
+    new_user = Users.objects.create(name=name, password=make_password(password), short_bio=short_bio, username=username,
+                                    email_id=email_id)
     new_user.save()
     return Response(UserSerializer(instance=new_user).data, status=200)
+
+
+@api_view(["GET"])
+def get_user(request):
+    query = request.query_params
+    if len(query) == 0:
+        user = Users.objects.all()
+        return Response(UserSerializer(instance=user, many=True).data, status=200)
+    elif 'user_id' in query.keys() and len(query['user_id']) == 0:
+        return Response({"error_message": "User ID not found!"}, status=400)
+    elif 'user_id' in query.keys() and not query['user_id'][0].isdigit():
+        return Response({"error_message": "User ID should be an Integer!"}, status=400)
+    elif 'user_id' in query.keys():
+        id = int(query['user_id'])
+        user = Users.objects.filter(id=id).first()
+
+        if user is None:
+            return Response({"error_message": "User not found!"})
+
+        return Response(UserSerializer(instance=user).data, status=200)
+    else:
+        return Response({"error_message": "User Id not found!"}, status=400)
