@@ -82,3 +82,15 @@ def login(request):
             return Response({"access_token": access_token.access_token}, status=200)
     else:
         return Response({'message': "Username or password not provided"}, status=200)
+
+
+def check_token(request):
+    #access_token = request.query_param['access_token']
+    access_token = request.META['HTTP_TOKEN']
+    token_exists = token.objects.filter(access_token=access_token, is_valid=True).first()
+
+    if not token_exists:
+        return None
+    else:
+        current_user = token_exists.user_id
+        return current_user.username
