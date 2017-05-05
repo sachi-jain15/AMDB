@@ -12,6 +12,7 @@ class Users(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
+
 class token(models.Model):
     user_id = models.ForeignKey(Users,on_delete=models.CASCADE)
     access_token = models.CharField(max_length=255)
@@ -21,8 +22,6 @@ class token(models.Model):
 
     def create_token(self):
         self.access_token = uuid.uuid4()
-
-
 
 
 # Model to Store Details of Movies.
@@ -39,6 +38,7 @@ class movies(models.Model):
 # Model to store Various Genre.
 class genre(models.Model):
     name = models.CharField(max_length=200)
+
 
 # Mapping Table
 class moviegenre(models.Model):

@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from users.models import Users, token, movies, genre, moviegenre, reviews
 from datetime import datetime
 import json
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from users.serializer import UserSerializer, MovieSerializer
@@ -264,3 +265,20 @@ def review_movie(request):
     movies.objects.filter(id=movie_id).update(overall_rating=overall_rating)
     return Response({"success": "Movie Reviewed"}, status=200)
 
+
+# Endpoint for Logout.
+@api_view(["POST"])
+def logout(request):
+    current_user = check_token(request)
+
+    if current_user is None:
+        return Response({"error_message": "Access Token is Invalid."}, status=400)
+
+    if current_user == 'KeyError':
+        return Response({"error_message": "Access Token not found in Header.Please pass it as 'token'"}, status=400)
+
+    access_token = request.META['HTTP_TOKEN']
+    cur_token = token.objects.filter(access_token=access_token).first()
+    cur_token.is_valid = 0
+    cur_token.save()
+    return Response({"success": "User Logged Out."}, status=200)
