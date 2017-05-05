@@ -1,8 +1,9 @@
+# Import libraries here...
 from django.db import models
 import uuid
 # Create your models here.
 
-
+# The model below stores the Details of the User
 class Users(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
     username = models.CharField(max_length=100, unique= True, null=False, blank=False)
@@ -12,7 +13,7 @@ class Users(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
-
+# The model below stores the Details of the Access Token
 class token(models.Model):
     user_id = models.ForeignKey(Users,on_delete=models.CASCADE)
     access_token = models.CharField(max_length=255)
@@ -23,8 +24,7 @@ class token(models.Model):
     def create_token(self):
         self.access_token = uuid.uuid4()
 
-
-# Model to Store Details of Movies.
+# The model below stores the Details of the Movies.
 class movies(models.Model):
     name = models.CharField(max_length=300)
     duration_in_minutes = models.IntegerField(default=120)
@@ -34,19 +34,16 @@ class movies(models.Model):
     profile_pic_url = models.CharField(max_length=300)
     user_id = models.ForeignKey(Users,on_delete=models.CASCADE)
 
-
-# Model to store Various Genre.
+# The model below stores the Details of the Various Genre.
 class genre(models.Model):
     name = models.CharField(max_length=200)
 
-
-# Mapping Table
+# Model for Mapping Table
 class moviegenre(models.Model):
     movie_id = models.ForeignKey(movies,on_delete=models.CASCADE)
     genre_id = models.ForeignKey(genre,on_delete=models.CASCADE)
 
-
-# Model to Store Review of Movies.
+# The model below stores the Details of the Review of Movies.
 class reviews(models.Model):
     user_id = models.ForeignKey(Users,on_delete=models.CASCADE)
     movie_id = models.ForeignKey(movies,on_delete=models.CASCADE)
